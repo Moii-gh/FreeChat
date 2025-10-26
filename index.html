@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FreeChat</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    
+    <link rel="icon" type="image/svg+xml" href="assets/ui/logo.svg">
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-collapsed-content">
+            <button class="icon-btn" id="openSidebarBtn" title="Открыть меню"><span class="material-icons">menu</span></button>
+            <button class="icon-btn" id="newChatCollapsedBtn" title="Новый чат"><span class="material-symbols-outlined">edit_square</span></button>
+            <button class="icon-btn" id="searchCollapsedBtn" title="Поиск в чатах"><span class="material-icons">search</span></button>
+            
+            <div class="sidebar-user-profile-collapsed" id="userProfileCollapsedBtn" title="Настройки">
+                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2RjZGNkYyI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzIDN6bTAgMTRjLTIuNjcgMC01LTEuMjgtNi41My0zLjA1Ljg5LTEuNTYgMi44Ny0yLjQ2IDQuNDctMi43My42My4xOCAxLjI5LjI4IDIuMDYuMjhzMS40My0uMSAyLjA2LS4yOGMxLjYxLjI4IDMuNTguMS4xNyA0LjQ3LTIuNzMgMS41My0xLjc3IDMuODctMy4wNCA2LjUzLTMuMDV6Ii8+PC9zdmc+" alt="User Avatar" class="user-avatar">
+            </div>
+        </div>
+
+        <div class="sidebar-expanded-content">
+            <div class="sidebar-header">
+                <h2>Чаты</h2>
+                <button class="icon-btn" id="closeSidebar" title="Закрыть меню"><span class="material-icons">close</span></button>
+            </div>
+            <div class="sidebar-top-controls">
+                <div class="sidebar-action-item" id="newChatBtn"><span class="material-symbols-outlined">edit_square</span><span>Новый чат</span></div>
+                <div class="sidebar-action-item"><span class="material-icons">search</span><input type="search" id="chatSearchInput" placeholder="Поиск в чатах"></div>
+            </div>
+            <div class="chats-list" id="chatsList"></div>
+            <div class="sidebar-footer">
+                <div class="sidebar-user-profile" id="userProfileBtn" title="Настройки">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2RjZGNkYyI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzIDN6bTAgMTRjLTIuNjcgMC01LTEuMjgtNi41My0zLjA1Ljg5LTEuNTYgMi44Ny0yLjQ2IDQuNDctMi43My42My4xOCAxLjI5LjI4IDIuMDYuMjhzMS40My0uMSAyLjA2LS4yOGMxLjYxLjI4IDMuNTguMS4xNyA0LjQ3LTIuNzMgMS41My0xLjc3IDMuODctMy4wNCA2LjUzLTMuMDV6Ii8+PC9zdmc+" alt="User Avatar" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name" id="sidebarUserName">Пользователь</span>
+                        <span class="user-status">Бесплатно</span>
+                    </div>
+                    <button class="update-btn">Обновить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-header">
+            <h3>Настройки</h3>
+            <button class="icon-btn" id="closeSettingsModal"><span class="material-icons">close</span></button>
+        </div>
+        <div class="settings-nav">
+            <div class="settings-nav-item active" data-page="general">Общее</div>
+            <div class="settings-nav-item" data-page="personalization">Персонализация</div>
+            <div class="settings-nav-item" data-page="api">API</div>
+        </div>
+        <div class="settings-content">
+            <div id="settings-page-general" class="settings-page active">
+                <div class="settings-section">
+                    <label for="themeSelect">Тема</label>
+                    <select id="themeSelect">
+                        <option value="system">Системная</option>
+                        <option value="light">Светлая</option>
+                        <option value="dark">Темная</option>
+                    </select>
+                </div>
+                <div class="settings-section">
+                    <label for="accentColor">Акцентный цвет</label>
+                    <input type="color" id="accentColor" value="#4a5fc1">
+                </div>
+            </div>
+            <div id="settings-page-personalization" class="settings-page">
+                <div class="settings-section">
+                    <label for="userNameInput">Ваше имя</label>
+                    <input type="text" id="userNameInput" placeholder="Как ассистенту к вам обращаться?">
+                </div>
+                <div class="settings-section">
+                    <label for="systemPrompt">Пользовательские инструкции</label>
+                    <textarea id="systemPrompt" placeholder="Например: Ты — AI ассистент, отвечай кратко и понятно..." rows="4"></textarea>
+                </div>
+            </div>
+            <div id="settings-page-api" class="settings-page">
+                <div class="settings-section"><label for="apiKey_chatgpt">ChatGPT API Key (OpenRouter)</label><input type="password" id="apiKey_chatgpt" placeholder="sk-or-v1..."></div>
+                <div class="settings-section"><label for="apiKey_deepseek">DeepSeek API Key (OpenRouter)</label><input type="password" id="apiKey_deepseek" placeholder="sk-or-v1..."></div>
+                <!-- ИЗМЕНЕНИЕ ЗДЕСЬ -->
+                <div class="settings-section"><label for="apiKey_qwen">Qwen API Key (OpenRouter)</label><input type="password" id="apiKey_qwen" placeholder="sk-or-v1..."></div>
+            </div>
+        </div>
+        <div class="settings-footer">
+            <button id="saveSettingsBtn" class="save-settings-btn">Сохранить</button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <header>
+            <button class="icon-btn" id="menuIcon" aria-label="Меню"><span class="material-icons">menu</span></button>
+            <div class="model-selector">
+                <button class="model-button" id="modelButton"><span id="currentModelName">ChatGPT</span><span class="material-icons" style="font-size: 18px;">arrow_drop_down</span></button>
+                <div class="model-dropdown" id="modelDropdown">
+                    <div class="model-option active" data-model="gpt-oss"><span>ChatGPT</span></div>
+                    <div class="model-option" data-model="deepseek"><span>DeepSeek</span></div>
+                    <!-- ИЗМЕНЕНИЕ ЗДЕСЬ -->
+                    <div class="model-option" data-model="qwen"><span>Qwen (Vision)</span></div>
+                </div>
+            </div>
+            <button class="icon-btn" id="headerNewChatBtn" aria-label="Новый чат"><span class="material-symbols-outlined">edit_square</span></button>
+        </header>
+
+        <main id="main">
+            <div class="welcome-screen" id="welcomeScreen"><h1></h1></div>
+            <div class="chat-container" id="chatContainer"></div>
+        </main>
+
+        <footer id="footer">
+            <div class="footer-content">
+                <div class="edit-mode-container" id="editModeContainer">
+                    <div class="edit-mode-info">
+                        <span class="material-symbols-outlined">edit</span>
+                        <span>Редактировать сообщение</span>
+                    </div>
+                    <button class="icon-btn" id="cancelEditBtn" title="Отмена">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="file-preview-container" id="filePreviewContainer"></div>
+                <div class="input-container" id="inputContainer">
+                    <button class="icon-btn" id="attachFileBtn" title="Прикрепить файл"><span class="material-symbols-outlined">add</span></button>
+                    <input type="file" id="fileInput" accept=".txt,.me,.docx,.py,.html,.css,.js,.cpp,.jpg,.jpeg,.png,.gif,.webp" style="display: none;" multiple>
+                    <textarea class="input-field" id="messageInput" placeholder="Спросите что-нибудь..." rows="1"></textarea>
+                    <button class="icon-btn" id="micBtn" title="Голосовой ввод"><span class="material-symbols-outlined">mic</span></button>
+                    <button class="send-button" id="sendButton" aria-label="Отправить" style="display: none;"><span class="material-icons">arrow_upward</span></button>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <button class="icon-btn scroll-to-bottom" id="scrollToBottomBtn" style="display:none;"><span class="material-icons">arrow_downward</span></button>
+
+    <!-- Local Script -->
+    <script src="js/script.js" defer></script>
+</body>
+</html>
