@@ -1,4 +1,3 @@
-
 // ===================================================================================
 // --- РАЗДЕЛ 1: ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ, КОНСТАНТЫ И СОСТОЯНИЕ ПРИЛОЖЕНИЯ ---
 // ===================================================================================
@@ -277,6 +276,7 @@ const prepareNewChatUI = () => {
     state.currentChatId = null; state.conversationHistory = []; DOMElements.chatContainer.innerHTML = '';
     DOMElements.chatContainer.classList.remove('active'); DOMElements.welcomeScreen.classList.remove('hidden');
     DOMElements.welcomeScreen.querySelector('h1').textContent = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+    document.body.classList.add('new-chat-active');
     renderChatsList(); DOMElements.messageInput.value = ''; DOMElements.messageInput.focus();
     clearAttachedFiles();
     updatePageTitle();
@@ -303,7 +303,12 @@ function loadChat(chatId, maintainScroll = false) {
     const hasMessages = state.conversationHistory.length > 0;
     DOMElements.welcomeScreen.classList.toggle('hidden', hasMessages); DOMElements.chatContainer.classList.toggle('active', hasMessages);
     
-    if (hasMessages) { state.conversationHistory.forEach(msg => addMessageToDOM(msg, true)); }
+    if (hasMessages) {
+        document.body.classList.remove('new-chat-active');
+        state.conversationHistory.forEach(msg => addMessageToDOM(msg, true));
+    } else {
+        document.body.classList.add('new-chat-active');
+    }
     updateModelDisplay(); renderChatsList(); 
     if (isScrolledToBottom && !maintainScroll) scrollToBottom();
     updateAIActions();
@@ -1081,6 +1086,8 @@ async function handleSendMessage(editedText = null, editedFiles = null) {
     const userText = editedText !== null ? editedText : DOMElements.messageInput.value.trim();
     const files = editedFiles !== null ? editedFiles : state.attachedFiles;
     if (userText === '' && files.length === 0) return;
+
+    document.body.classList.remove('new-chat-active');
 
     const currentModelDetails = getModelDetails(state.currentModel);
     if (!currentModelDetails || !currentModelDetails.apiKey) { alert(`API ключ для модели "${currentModelDetails?.displayName || state.currentModel}" не найден.`); if (state.currentModel.startsWith('custom-')) toggleModal('addModelModal', true); else toggleModal('settingsModal', true); return; }
