@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FreeChat</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    
+    <!-- Syntax Highlighting (Prism.js) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <link rel="icon" type="image/svg+xml" href="assets/ui/logo.svg">
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-collapsed-content">
+            <button class="icon-btn" id="openSidebarBtn" title="Открыть меню"><span class="material-icons">menu</span></button>
+            <button class="icon-btn" id="newChatCollapsedBtn" title="Новый чат"><span class="material-symbols-outlined">edit_square</span></button>
+            <button class="icon-btn" id="searchCollapsedBtn" title="Поиск в чатах"><span class="material-icons">search</span></button>
+            
+            <div class="sidebar-user-profile-collapsed" id="userProfileCollapsedBtn" title="Профиль и настройки">
+                 <div class="user-avatar" id="sidebarCollapsedAvatar"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-expanded-content">
+            <div class="sidebar-header">
+                <h2>Чаты</h2>
+                <button class="icon-btn" id="closeSidebar" title="Закрыть меню"><span class="material-icons">close</span></button>
+            </div>
+            <div class="sidebar-top-controls">
+                <div class="sidebar-action-item" id="newChatBtn"><span class="material-symbols-outlined">edit_square</span><span>Новый чат</span></div>
+                <div class="sidebar-action-item"><span class="material-icons">search</span><input type="search" id="chatSearchInput" placeholder="Поиск в чатах"></div>
+            </div>
+            <div class="chats-list" id="chatsList"></div>
+            <div class="sidebar-footer">
+                <div class="sidebar-user-profile" id="userProfileBtn" title="Профиль и настройки">
+                    <div class="user-avatar" id="sidebarAvatar"></div>
+                    <div class="user-info">
+                        <span class="user-name" id="sidebarUserName">Пользователь</span>
+                        <span class="user-status">Бесплатно</span>
+                    </div>
+                    <button class="update-btn">Обновить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="user-profile-menu" id="userProfileMenu">
+        <div class="user-profile-menu-header">
+            <span class="material-symbols-outlined">account_circle</span>
+            <span id="userMenuEmail">user12345</span>
+        </div>
+        <div class="user-profile-menu-separator"></div>
+        <div class="user-profile-menu-item" data-action="personalization"><span class="material-symbols-outlined">tune</span>Персонализация</div>
+        <div class="user-profile-menu-item" data-action="settings"><span class="material-symbols-outlined">settings</span>Настройки</div>
+        <div class="user-profile-menu-separator"></div>
+        <div class="user-profile-menu-item" data-action="privacy"><span class="material-symbols-outlined">shield</span>Политика конфиденциальности</div>
+        <div class="user-profile-menu-item" data-action="logout"><span class="material-symbols-outlined">logout</span>Выйти</div>
+    </div>
+
+    <!-- START: MODALS AND OVERLAYS -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-header">
+            <h3>Настройки</h3>
+            <button class="icon-btn" id="closeSettingsModal"><span class="material-icons">close</span></button>
+        </div>
+        <div class="settings-nav">
+            <div class="settings-nav-item active" data-page="general">Общее</div>
+            <div class="settings-nav-item" data-page="personalization">Персонализация</div>
+            <div class="settings-nav-item" data-page="api">API</div>
+        </div>
+        <div class="settings-content">
+            <div id="settings-page-general" class="settings-page active">
+                <div class="settings-section"><label for="themeSelect">Тема</label><select id="themeSelect"><option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Темная</option></select></div>
+                <div class="settings-section"><label for="accentColor">Акцентный цвет</label><input type="color" id="accentColor" value="#4a5fc1"></div>
+            </div>
+            <div id="settings-page-personalization" class="settings-page">
+                <div class="settings-section"><label for="userNameInput">Ваше имя</label><input type="text" id="userNameInput" placeholder="Как ассистенту к вам обращаться?"></div>
+                <div class="settings-section"><label for="systemPrompt">Пользовательские инструкции</label><textarea id="systemPrompt" placeholder="Например: Ты — AI ассистент, отвечай кратко и понятно..." rows="4"></textarea></div>
+            </div>
+            <div id="settings-page-api" class="settings-page">
+                <div class="settings-section"><label for="apiKey_chatgpt">ChatGPT API Key (OpenRouter)</label><input type="password" id="apiKey_chatgpt" placeholder="sk-or-v1..."></div>
+                <div class="settings-section"><label for="apiKey_deepseek">DeepSeek API Key (OpenRouter)</label><input type="password" id="apiKey_deepseek" placeholder="sk-or-v1..."></div>
+                <div class="settings-section"><label for="apiKey_qwen">Qwen API Key (OpenRouter)</label><input type="password" id="apiKey_qwen" placeholder="sk-or-v1..."></div>
+            </div>
+        </div>
+        <div class="settings-footer"><button id="saveSettingsBtn" class="save-settings-btn">Сохранить</button></div>
+    </div>
+    
+    <div class="settings-modal" id="addModelModal">
+        <div class="settings-header"><h3>Добавить свою модель</h3><button class="icon-btn" id="closeAddModelModal"><span class="material-icons">close</span></button></div>
+        <div class="settings-content"><div class="settings-page active"><div class="settings-section"><label for="modelBaseUrl">Base URL</label><input type="text" id="modelBaseUrl" placeholder="https://api.example.com/v1/"></div><div class="settings-section"><label for="modelName">Model Name</label><input type="text" id="modelName" placeholder="my-awesome-llm/model-v1"></div><div class="settings-section"><label for="modelApiKey">API Key</label><input type="password" id="modelApiKey" placeholder="sk-..."></div><div class="settings-section"><label for="modelVision">Обработка изображений</label><label class="toggle-switch"><input type="checkbox" id="modelVision"><span class="slider round"></span></label></div></div></div>
+        <div class="settings-footer"><button id="saveModelBtn" class="save-settings-btn">Добавить модель</button></div>
+    </div>
+
+    <div class="immersive-modal" id="textInputModal">
+        <div class="text-modal-content">
+            <div class="text-modal-header">
+                <h3>Добавить текст</h3>
+                <button class="icon-btn" id="closeTextInputModal"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <textarea id="textInputField"></textarea>
+            <div class="text-modal-footer">
+               <button id="saveTextBtn">Добавить</button>
+            </div>
+       </div>
+    </div>
+
+    <div class="drawing-modal" id="drawingModal">
+        <button class="icon-btn immersive-close-btn" id="closeDrawingModal"><span class="material-symbols-outlined">close</span></button>
+        <canvas id="drawingCanvas"></canvas>
+        <div class="drawing-toolbar-floating">
+            <div class="drawing-tool-group" id="colorSwatches">
+                <div class="color-swatch active" data-color="#FFFFFF"></div>
+                <div class="color-swatch" data-color="#2c2c2c"></div>
+                <div class="color-swatch" data-color="#f1c40f"></div>
+                <div class="color-swatch" data-color="#e74c3c"></div>
+                <div class="color-swatch" data-color="#2ecc71"></div>
+                <div class="color-swatch" data-color="#3498db"></div>
+            </div>
+            <div class="drawing-tool-separator"></div>
+            <div class="drawing-tool-group">
+                <button class="icon-btn" id="undoCanvasBtn" title="Отменить"><span class="material-symbols-outlined">undo</span></button>
+                <button class="icon-btn" id="redoCanvasBtn" title="Повторить"><span class="material-symbols-outlined">redo</span></button>
+            </div>
+            <div class="drawing-tool-separator"></div>
+            <div class="drawing-tool-group">
+                <button class="icon-btn" id="clearCanvasBtn" title="Очистить"><span class="material-symbols-outlined">delete_forever</span></button>
+                <button class="drawing-done-btn" id="saveDrawingBtn">Готово</button>
+            </div>
+        </div>
+    </div>
+    <!-- END: MODALS AND OVERLAYS -->
+
+    <div class="page-wrapper" id="pageWrapper">
+        <div class="drag-drop-overlay" id="dragDropOverlay"><div class="drag-drop-content"><span class="material-symbols-outlined">upload_file</span><span>Перетащите файлы сюда</span></div></div>
+
+        <header>
+            <button class="icon-btn" id="menuIcon" aria-label="Меню"><span class="material-icons">menu</span></button>
+            <div class="model-selector">
+                <button class="model-button" id="modelButton"><span id="currentModelName">ChatGPT</span><span class="material-icons" style="font-size: 18px;">arrow_drop_down</span></button>
+                <div class="model-dropdown" id="modelDropdown"></div>
+            </div>
+            <button class="icon-btn" id="headerNewChatBtn" aria-label="Новый чат"><span class="material-symbols-outlined">edit_square</span></button>
+        </header>
+
+        <main id="main">
+            <div class="welcome-screen" id="welcomeScreen"><h1></h1></div>
+            <div class="chat-container" id="chatContainer"></div>
+        </main>
+
+        <footer id="footer">
+            <div class="footer-content">
+                <div class="edit-mode-container" id="editModeContainer">
+                    <div class="edit-mode-info"><span class="material-symbols-outlined">edit</span><span>Редактировать сообщение</span></div>
+                    <button class="icon-btn" id="cancelEditBtn" title="Отмена"><span class="material-symbols-outlined">close</span></button>
+                </div>
+                <div class="file-preview-container" id="filePreviewContainer"></div>
+                <div class="input-container-wrapper">
+                    <div class="attachment-menu" id="attachmentMenu">
+                        <div class="attachment-menu-item" id="drawSketchOption"><span class="material-symbols-outlined">draw</span>Нарисовать</div>
+                        <div class="attachment-menu-item" id="addTextOption"><span class="material-symbols-outlined">edit_document</span>Добавить текст</div>
+                        <div class="attachment-menu-item" id="uploadFileOption"><span class="material-symbols-outlined">upload_file</span>Загрузить файл</div>
+                    </div>
+                    <div class="input-container" id="inputContainer">
+                        <button class="icon-btn" id="attachFileBtn" title="Прикрепить файл"><span class="material-symbols-outlined">add</span></button>
+                        <input type="file" id="fileInput" accept=".txt,.me,.docx,.py,.html,.css,.js,.cpp,.jpg,.jpeg,.png,.gif,.webp" style="display: none;" multiple>
+                        <textarea class="input-field" id="messageInput" placeholder="Спросите что-нибудь..." rows="1"></textarea>
+                        <button class="icon-btn" id="micBtn" title="Голосовой ввод"><span class="material-symbols-outlined">mic</span></button>
+                        <button class="send-button" id="sendButton" aria-label="Отправить"><span class="material-icons">arrow_upward</span></button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- START: CODE PREVIEWER -->
+    <div id="codeRunnerContainer" class="code-runner-container">
+        <div id="codePreview" class="code-preview-pane">
+             <div class="code-preview-header">
+                <div class="window-controls">
+                    <div class="control-dot close"></div>
+                    <div class="control-dot minimize"></div>
+                    <div class="control-dot maximize"></div>
+                </div>
+                <div class="address-bar">localhost:3000</div>
+                <div class="header-actions">
+                    <button id="downloadCodeBtn" class="icon-btn" title="Скачать HTML"><span class="material-symbols-outlined">download</span></button>
+                    <button id="closeRunnerBtn" class="icon-btn" title="Закрыть"><span class="material-symbols-outlined">close</span></button>
+                </div>
+            </div>
+            <iframe id="previewIframe"></iframe>
+        </div>
+    </div>
+    <!-- END: CODE PREVIEWER -->
+
+    <button class="icon-btn scroll-to-bottom" id="scrollToBottomBtn" style="display:none;"><span class="material-icons">arrow_downward</span></button>
+    <!-- Main script is last -->
+    <script src="js/script.js" defer></script>
+</body>
+</html>
